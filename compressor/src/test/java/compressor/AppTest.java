@@ -2,8 +2,10 @@ package compressor;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,11 +18,36 @@ import org.junit.Test;
  */
 public class AppTest {
 
-    public boolean isEqual(File file1, File file2) {
-        return true;
+    static long getFolderSize(File dir) {
+        long size = 0;
+        for (File file : dir.listFiles()) {
+            if (file.isFile()) {
+                size += file.length();
+            }
+            else {
+                size += getFolderSize(file);
+            }
+        }
+        return size;
     }
 
-    public static void deleteFolder(File file){
+    boolean isEqual(File file1, File file2) throws IOException {
+        BufferedInputStream inputStream1 = new BufferedInputStream(new FileInputStream(file1));
+        BufferedInputStream inputStream2 = new BufferedInputStream(new FileInputStream(file2));
+        int b;
+        while ((b = inputStream1.read()) != -1) {
+            if (b != inputStream2.read()) {
+                return false;
+            }
+        }
+        boolean result = inputStream2.read() == -1;
+        inputStream1.close();
+        inputStream2.close();
+
+        return result;
+    }
+
+    static void deleteFolder(File file){
         for (File subFile : file.listFiles()) {
            if(subFile.isDirectory()) {
               deleteFolder(subFile);
@@ -62,16 +89,20 @@ public class AppTest {
             outputStream2.write('a');
         }
 
+
         try {
             Compressor.compress("input", "output", 1);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertTrue(getFolderSize(new File("input")) > getFolderSize(new File("output")));
 
-        for (File file : new File("input").listFiles()) {
-            assertTrue(file.length() < 1000000);
+        for (File file : new File("output").listFiles()) {
+            if(file.isFile()) {
+                assertTrue(file.length() < 1000000);
+            }
         }
-        for (File file : new File("input/dir1").listFiles()) {
+        for (File file : new File("output/dir1").listFiles()) {
             assertTrue(file.length() < 1000000);
         }
 

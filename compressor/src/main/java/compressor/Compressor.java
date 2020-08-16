@@ -38,7 +38,7 @@ class Compressor {
         }
     }
 
-    static void compressFile(File inputFile, String outputDir, StreamHandler handler, int maxSizePerFile, MetaDirectory meta)
+    private static void compressFile(File inputFile, String outputDir, StreamHandler handler, int maxSizePerFile, MetaDirectory meta)
             throws IOException {
         String outputName = outputDir + "_" + "file";
         OutputStream outputStream = handler.getCompressedOutputStream(new File(outputName));
@@ -48,7 +48,6 @@ class Compressor {
         while ((b = inputStream.read())!= -1) {
             outputStream.write(b);
         }
-        meta.add(inputFile.getPath(), outputName);
         outputStream.flush();
         outputStream.close();
         inputStream.close();
@@ -63,23 +62,23 @@ class Compressor {
         outputName = outputDir + "_" + "file" + fileNo;
         outputStream = new BufferedOutputStream(new FileOutputStream(outputName));
         while(true) {
-        while (numBytesRead <  maxSizePerFile && (b = inputStream.read())!= -1) {
-            numBytesRead += 1;
-            outputStream.write(b);
+            while (numBytesRead <  maxSizePerFile && (b = inputStream.read())!= -1) {
+                numBytesRead += 1;
+                outputStream.write(b);
+            }
+            outputStream.flush();
+            outputStream.close();
+            meta.add(inputFile.getPath().split("/", 2)[1], outputName.split("/", 2)[1]);
+            if (b == -1) {
+                compressedOutputFile.delete();
+                inputStream.close();
+                break;
+            } else {
+                fileNo += 1;
+                outputName = outputDir + "_" + "file" + fileNo ;
+                outputStream = new BufferedOutputStream(new FileOutputStream(outputName));
+                numBytesRead = 0;
+            }
         }
-        outputStream.flush();
-        outputStream.close();
-        meta.add(inputFile.getPath(), outputName);
-        if (b == -1) {
-            compressedOutputFile.delete();
-            inputStream.close();
-            break;
-        } else {
-            fileNo += 1;
-            outputName = outputDir + "_" + "file" + fileNo ;
-            outputStream = new BufferedOutputStream(new FileOutputStream(outputName));
-            numBytesRead = 0;
-        }
-    }
     }
 }

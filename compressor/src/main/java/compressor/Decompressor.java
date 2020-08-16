@@ -18,6 +18,11 @@ public class Decompressor {
             ArrayList<String> value = entry.getValue();
 
             File decompressedFile = new File(outputPath + "/" + key);
+            if (decompressedFile.getParentFile() != null){
+                decompressedFile.getParentFile().mkdirs();
+            }
+            decompressedFile.createNewFile();
+
             OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decompressedFile));
 
             for(String compressedFile : value) {

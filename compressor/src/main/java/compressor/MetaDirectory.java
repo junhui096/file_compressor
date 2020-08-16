@@ -9,17 +9,17 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MetaDirectory {
+class MetaDirectory {
 
-    private HashMap<String, ArrayList<String>> map;
-    private String outputDir;
+    private final HashMap<String, ArrayList<String>> map;
+    private final String outputDir;
 
-    public MetaDirectory(String outputDir) {
+    MetaDirectory(final String outputDir) {
         this.map = new HashMap<String, ArrayList<String>>();
         this.outputDir = outputDir;
     }
 
-    public void add(String inputDir, String outputDir) {
+    void add(final String inputDir, final String outputDir) {
         if (!this.map.containsKey(inputDir)) {
             this.map.put(inputDir, new ArrayList<String>());
         }
@@ -27,18 +27,18 @@ public class MetaDirectory {
 
     }
 
-    public void save() throws IOException {
-        String outputName = this.outputDir + "/__meta__";
-        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(outputName));
+    void save() throws IOException {
+        final String outputName = this.outputDir + "/__meta__";
+        final ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(outputName));
         outputStream.writeObject(this.map);
         outputStream.close();
     }
 
-    public static HashMap<String, ArrayList<String>> getDirectoryIndex(String outputDir) throws IOException,
-            ClassNotFoundException {
-        FileInputStream f = new FileInputStream(new File(outputDir + "/__meta__"));  
-        ObjectInputStream s = new ObjectInputStream(f);          
-        HashMap<String, ArrayList<String>> map = (HashMap<String, ArrayList<String>>) s.readObject();
+    static HashMap<String, ArrayList<String>> getDirectoryIndex(final String outputDir)
+            throws IOException, ClassNotFoundException {
+        final FileInputStream f = new FileInputStream(new File(outputDir + "/__meta__"));
+        final ObjectInputStream s = new ObjectInputStream(f);
+        final HashMap<String, ArrayList<String>> map = (HashMap<String, ArrayList<String>>) s.readObject();
         s.close();
         return map;
     }
