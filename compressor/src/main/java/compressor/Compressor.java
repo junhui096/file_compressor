@@ -17,12 +17,12 @@ class Compressor {
         if (!inputDirectory.exists()) {
             throw new Exception("Invalid input string");
         } else {
-            Compressor.compressDirectory(inputDirectory, outputPath, handler, maxSizePerFile * 1000000, meta);
+            Compressor.compressDirectory(inputDirectory, outputPath, inputPath, outputPath, handler, maxSizePerFile * 1000000, meta);
         }
         meta.save();
     }
         
-    private static void compressDirectory(File dirToParse, String outputDir, StreamHandler handler, int maxSizePerFile, MetaDirectory meta)
+    private static void compressDirectory(File dirToParse, String outputDir, String startingInputPath, String startingOutputPath, StreamHandler handler, int maxSizePerFile, MetaDirectory meta)
             throws IOException {
         File dir = new File(outputDir);
 
@@ -31,14 +31,14 @@ class Compressor {
         }
         for(File file: dirToParse.listFiles()) {
             if (file.isFile()) {
-                Compressor.compressFile(file, outputDir + "/" + file.getName(), handler, maxSizePerFile, meta);
+                Compressor.compressFile(file, outputDir + "/" + file.getName(), startingInputPath, startingOutputPath, handler, maxSizePerFile, meta);
             } else {
-                Compressor.compressDirectory(file, outputDir + "/" + file.getName(), handler, maxSizePerFile, meta);
+                Compressor.compressDirectory(file, outputDir + "/" + file.getName(), startingInputPath, startingOutputPath, handler, maxSizePerFile, meta);
             }
         }
     }
 
-    private static void compressFile(File inputFile, String outputDir, StreamHandler handler, int maxSizePerFile, MetaDirectory meta)
+    private static void compressFile(File inputFile, String outputDir, String startingInputPath, String startingOutputPath, StreamHandler handler, int maxSizePerFile, MetaDirectory meta)
             throws IOException {
         String outputName = outputDir + "_" + "file";
         OutputStream outputStream = handler.getCompressedOutputStream(new File(outputName));
@@ -68,7 +68,7 @@ class Compressor {
             }
             outputStream.flush();
             outputStream.close();
-            meta.add(inputFile.getPath().split("/", 2)[1], outputName.split("/", 2)[1]);
+            meta.add(inputFile.getPath().replace(startingInputPath + "/", ""), outputName.replace(startingOutputPath + "/", ""));
             if (b == -1) {
                 compressedOutputFile.delete();
                 inputStream.close();

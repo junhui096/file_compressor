@@ -115,8 +115,8 @@ public class AppTest {
         assertTrue(new File("input2/file1.txt").exists());
         assertTrue(new File("input2/dir1/file2.txt").exists());
 
-        assertTrue(isEqual(new File("input2/file1"), new File("input/file1")));
-        assertTrue(isEqual(new File("input2/dir1/file1"), new File("input/dir1/file1")));
+        assertTrue(isEqual(new File("input2/file1.txt"), new File("input/file1.txt")));
+        assertTrue(isEqual(new File("input2/dir1/file2.txt"), new File("input/dir1/file2.txt")));
 
         deleteFolder(new File("input"));
         deleteFolder(new File("input2"));
